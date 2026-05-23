@@ -609,12 +609,16 @@ class BlindsCover(CoverEntity, RestoreEntity):
             
 
     async def async_added_to_hass(self):
-        self.hass.bus.async_listen("state_changed", self._handle_state_changed)
-        # Set up periodic time update
-        async_track_time_interval(self.hass, self.add_ons, timedelta(minutes=1))
-        async_track_state_change_event(
+        self._unsub_state_changed = self.hass.bus.async_listen("state_changed", self._handle_state_changed)
+        self._unsub_time_interval = async_track_time_interval(self.hass, self.add_ons, timedelta(minutes=1))
+        self._unsub_sun = async_track_state_change_event(
             self.hass, ["sensor.sun_next_dawn", "sensor.sun_next_dusk"], self.sun_state_changed
         )
+
+    async def async_will_remove_from_hass(self):
+        self._unsub_state_changed()
+        self._unsub_time_interval()
+        self._unsub_sun()
 
 
         
