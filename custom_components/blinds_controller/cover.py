@@ -21,7 +21,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.event import async_track_time_interval
-from homeassistant.helpers.event import async_track_state_change
+from homeassistant.helpers.event import async_track_state_change_event
 
 # Import the logger and datetime modules
 import logging
@@ -142,7 +142,9 @@ class BlindsCover(CoverEntity, RestoreEntity):
         self._switch_open_state = "off"
         self._night_lights_state = "off"
 
-    async def sun_state_changed(self, entity_id, old_state, new_state):
+    async def sun_state_changed(self, event):
+        entity_id = event.data.get("entity_id")
+        new_state = event.data.get("new_state")
         if new_state is not None:
             if entity_id == "sensor.sun_next_dawn":
                 self._sun_next_sunrise = new_state.state
@@ -610,11 +612,8 @@ class BlindsCover(CoverEntity, RestoreEntity):
         self.hass.bus.async_listen("state_changed", self._handle_state_changed)
         # Set up periodic time update
         async_track_time_interval(self.hass, self.add_ons, timedelta(minutes=1))
-        async_track_state_change(
-            self.hass, "sensor.sun_next_dawn", self.sun_state_changed
-        )
-        async_track_state_change(
-            self.hass, "sensor.sun_next_dusk", self.sun_state_changed
+        async_track_state_change_event(
+            self.hass, ["sensor.sun_next_dawn", "sensor.sun_next_dusk"], self.sun_state_changed
         )
 
 
