@@ -15,7 +15,6 @@ from homeassistant.const import (
     SERVICE_OPEN_COVER,
     SERVICE_STOP_COVER,
 )
-from homeassistant.helpers import entity_platform
 from homeassistant.core import callback
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.config_entries import ConfigEntry
@@ -41,22 +40,6 @@ from .calculator import TravelStatus
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
-
-SERVICE_SET_KNOWN_POSITION = "set_known_position"
-SERVICE_SET_KNOWN_TILT_POSITION = "set_known_tilt_position"
-
-# This function takes the Home Assistant instance, the configuration data,
-# function to add entities, and optional discovery information.
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    platform = entity_platform.current_platform.get()
-
-    # Register a service for setting the known position of the cover.
-    platform.async_register_entity_service(
-        SERVICE_SET_KNOWN_POSITION, "set_known_position"
-    )
-    platform.async_register_entity_service(
-        SERVICE_SET_KNOWN_TILT_POSITION, "set_known_tilt_position"
-    )
 
 # This function is called by Home Assistant to setup the component
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
